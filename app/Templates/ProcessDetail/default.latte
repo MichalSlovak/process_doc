@@ -1,0 +1,689 @@
+{block backLink}
+  {ifset $data->backlink}
+    {slink $data->backlink}
+  {else}
+    javascript:history.back()
+  {/ifset}
+{/block}
+
+{block breadcrumbs}
+  <li><a href="{slink $data->applicationData->subProcessTreeLinkData}">{$data->applicationData->name}</a></li>
+  {if $data->breadcrumbProcessData !== null}
+    {foreach $data->breadcrumbProcessData as $breadcrumbItem}
+      {if $breadcrumbItem->subProcessTreeLinkData !== null}
+        <li><a href="{slink $breadcrumbItem->subProcessTreeLinkData}">{$breadcrumbItem->code}. {$breadcrumbItem->name}</a></li>
+      {else}
+        <li>{$breadcrumbItem->code}. {$breadcrumbItem->name}</li>
+      {/if}
+    {/foreach}
+  {/if}
+{/block}
+
+{block content}
+  <div class="content-header">
+    <ul class="tabs">
+      <li class="tab"><div id="menu_content_1_head">Proces</div></li>
+      <li class="tab"><div id="menu_content_2_head">Detail</div></li>
+      <li class="tab"><div id="menu_content_3_head">Verze</div></li>
+    </ul>
+  </div>
+
+  <div id="menu_content_1"
+       data-sm_menu='{
+         "menu":"menu_content",
+         "item":"menu_content_1",
+         "selected":true,
+         "show":{"event":"click","type":"fade","delay":0,"scrollToHead":false},
+         "hide":{"event":"click","type":"fade","delay":0,"modal":true},
+         "head":{"id":"menu_content_1_head","css":"head-active","close":false},
+         "popup":{"id":"menu_content_1_popup"},
+         "cnt":{"id":"menu_content_1_cnt"}
+       }'>
+    <div id="menu_content_1_popup" class="menu-popup-open">
+      <div id="menu_content_1_cnt" class="menu-cnt">
+        {include printSpec, $data->processStepsData, "first", "", 0, true, $data->processDetailData->id}
+      </div>
+    </div>
+  </div>
+
+  <div id="menu_content_2"
+       data-sm_menu='{
+         "menu":"menu_content",
+         "item":"menu_content_2",
+         "show":{"event":"click","type":"fade","delay":0,"scrollToHead":false},
+         "hide":{"event":"click","type":"fade","delay":0,"modal":true},
+         "head":{"id":"menu_content_2_head","css":"head-active","close":false},
+         "popup":{"id":"menu_content_2_popup"},
+         "cnt":{"id":"menu_content_2_cnt"}
+       }'>
+    <div id="menu_content_2_popup" class="menu-popup">
+      <div id="menu_content_2_cnt" class="menu-cnt">
+        <div class="process-detail">
+          <table>
+            <tr>
+              <td>
+                Kód
+              </td>
+              <td>
+                {$data->processDetailData->code}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Název
+              </td>
+              <td>
+                {$data->processDetailData->name}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Modul
+              </td>
+              <td>
+                {if $data->processDetailData->modul !== null}
+                  {$data->processDetailData->modul}
+                {/if}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Presenter
+              </td>
+              <td>
+                {if $data->processDetailData->presenter !== null}
+                  {$data->processDetailData->presenter}
+                {/if}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Akce
+              </td>
+              <td>
+                {if $data->processDetailData->action !== null}
+                  {$data->processDetailData->action}
+                {/if}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                URL
+              </td>
+              <td>
+                {if $data->processDetailData->url !== null}
+                  {$data->processDetailData->url}
+                {/if}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Cíl
+              </td>
+              <td>
+                {if $data->processDetailData->target !== null}
+                  {$data->processDetailData->target}
+                {/if}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="menu_content_3"
+       data-sm_menu='{
+         "menu":"menu_content",
+         "item":"menu_content_3",
+         "show":{"event":"click","type":"fade","delay":0,"scrollToHead":false},
+         "hide":{"event":"click","type":"fade","delay":0,"modal":true},
+         "head":{"id":"menu_content_3_head","css":"head-active","close":false},
+         "popup":{"id":"menu_content_3_popup"},
+         "cnt":{"id":"menu_content_3_cnt"}
+       }'>
+    <div id="menu_content_3_popup" class="menu-popup">
+      <div id="menu_content_3_cnt" class="menu-cnt">
+        <div class="process-versions">
+          <table>
+            <tr><th>Autor</th><th>DevOps Link</th><th>Datum Vytvoření</th><th>Výchozí</th><th></th></tr>
+            {foreach $data->processVersions as $processVersion}
+              <tr>
+                <td class="text-nowrap">{$processVersion->author}</td>
+                <td class="word-break">{if empty($processVersion->request)}<span class="italic grey-text text08">Bez odkazu</span>{else}{$processVersion->request}{/if}</td>
+                <td class="text-nowrap">{$processVersion->dateCreated|date:'j. n. Y'}</td>
+                <td>{$processVersion->default ? 'ANO' : 'NE'}</td>
+                <td class="center text-nowrap">
+                  {if $processVersion->displayed}
+                    <span class="green-text svg-15 va-middle">
+{*                      Aktuálně zobranená*}
+                      {svg Sportisimo\Core\Icons\IconData::CHECK_CIRCLE} Zobrazeno
+{*                      {svg Sportisimo\Core\Icons\IconData::CHECK_BOX} Zobrazeno*}
+                    </span>
+                  {else}
+                    <a href="{slink $processVersion->processStepNextVersionLinkData}" class="btn-flat b-smaller b-auto blue-text waves-effect">
+                      Zobrazit
+                    </a>
+                  {/if}
+                </td>
+              </tr>
+            {/foreach}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{/block}
+
+{* vypsani jednoho kroku stromu - vola se rekurzivne pro vytvoreni celeho stromu *}
+{define printSpec $step, $parent, $stepNumber, $stepType, $showStepType, $currentProcessId}
+  {* jedna se o prvni vrstvu - todo nahradit - alespon konstantou *}
+  {var $isFirst = $parent === 'first'}
+  {* ulozeni cisla kroku *}
+  {var $saveStepNumber = $stepNumber}
+
+  {* tato kontrola ma smysl jen v prvni urovni - kdyz je $step null, tak je strom prazdny *}
+  {if $step !== null}
+    {foreach $step as $typeId => $subSteps}
+
+      {var $randomString = Nette\Utils\Random::generate()}
+      {* je typ kroku proces? *}
+      {var $isProcess = $typeId === 4}
+      {* jedna se o vrvni vrstu a zaroven je typ kroku proces *}
+      {var $isFirstAndProcess = $isFirst && $isProcess}
+      {* pro kazdy cyklus obnovim $stepNumber *}
+      {var $stepNumber = $saveStepNumber}
+
+      {if $showStepType}
+        <div id="menu_node_{$randomString}"
+             data-sm_menu='{
+               "menu":"menu_tree_{$randomString}",
+               "item":"menu_node_{$randomString}"{if $isFirstAndProcess || $isProcess},
+               "selected":true{/if},"parent":"menu_node_{$parent}",
+               "show":{"event":"click","type":"slide","delay":0,"scrollToHead":false},
+               "hide":{"event":"click","type":"slide","delay":0,"modal":true},
+               "head":{"id":"menu_node_{$randomString}_head","css":"node-inactive","close":false},
+               "popup":{"id":"menu_node_{$randomString}_popup"},
+               "cnt":{"id":"menu_node_{$randomString}_cnt"},
+               "close":{"id":"menu_node_{$randomString}_close", "css":"node-close"}
+             }'>
+          <div class="row m0 process-step-type-header valign-wrapper">
+
+            {* tlacitko na zavirani/otvirani kroku ve stromu *}
+            <div class="col valign-wrapper">
+              <div class="btn b-node bn-small">
+                <div id="menu_node_{$randomString}_head">
+                  <div>{svg Sportisimo\Core\Icons\IconData::ADD}</div>
+                </div>
+                <div id="menu_node_{$randomString}_close">
+                  <div class="node-close">{svg Sportisimo\Core\Icons\IconData::REMOVE}</div>
+                </div>
+              </div>
+            </div>
+
+            {* vypsani kodu a nazvu typu kroku *}
+            <div class="col psth-title">
+              {$data->processStepTypesData[$typeId]['type']} - {$data->processStepTypesData[$typeId]['name']}
+            </div>
+
+          </div>
+
+        <div id="menu_node_{$randomString}_popup" n:class="$isFirstAndProcess ? 'menu-popup-open' : 'menu-popup'">
+          <div id="menu_node_{$randomString}_cnt">
+
+      {/if}
+
+      {* jina trida pro prvni vrstvu *}
+{*      <div n:class="$isFirst ? 'process-step-type-base', 'process-step-type-main'">*}
+      <div class="{if $isFirst}process-step-type-base {/if}{if $stepType === 20 || $stepType === 23 || $stepType === 8}process-step-type-switch{elseif $data->processStepTypesData[$typeId]['type'] === 'A'}process-step-type-switch-a{else}process-step-type-main{/if}">
+
+        {* ulozeni cisla kroku *}
+        {if $stepType === 17 || $stepType === 20 || $stepType === 23 || $stepType === 8}
+          {var $saveStepNumber2 = $stepNumber}
+{*          <div style="height: 1rem; width: 1rem; background-color: red;"></div>*}
+        {else}
+          {var $saveStepNumber2 = $stepNumber . $data->processStepTypesData[$typeId]['type'] . '.'}
+{*          <div style="height: 1rem; width: 1rem; background-color: blue;"></div>*}
+        {/if}
+
+        {foreach $subSteps as $subStep}
+
+          {* todo vsechny id nahradit konstantou s kodem *}
+          {* typ subtypu je to-validate *}
+          {continueIf $subStep->stepSubtype === 15}
+
+          {* v kazdem cyklu obnoveni cisla kroku *}
+          {var $stepNumber = $saveStepNumber2}
+
+          {* kdyz ma krok potomka *}
+          {if !empty($subStep->children)}
+            {var $randomString2 = Nette\Utils\Random::generate()}
+
+            <div class="process-step-body">
+
+              {* hlavicka kroku *}
+              <div id="process_step_{$subStep->id}" class="row m0 process-step-header valign-wrapper">
+
+                {if $subStep->stepSubtype === 17}
+                  {var $randomString3 = Nette\Utils\Random::generate()}
+
+                  {* tlacitko na zavirani/otvirani casu v ifu *}
+                  <div class="col psh-btn valign-wrapper">
+                    <div class="btn b-node bn-small">
+                      <div id="menu_node_{$randomString3}_head">
+                        <div>{svg Sportisimo\Core\Icons\IconData::ADD}</div>
+                      </div>
+                      <div id="menu_node_{$randomString3}_close">
+                        <div class="node-close">{svg Sportisimo\Core\Icons\IconData::REMOVE}</div>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+
+                {* Zobrazeni ikony podtypu kroku *}
+                {include processStepSubtypeIcon $subStep->stepSubtype}
+
+                {* titulek kroku *}
+                <div id="menu_step_number_{$randomString2}"
+                     class="mouseover-popup"
+                     data-sm_menu='{
+                       "menu":"menu_step_number",
+                       "item":"menu_step_number_{$randomString2}",
+                       "show":{"event":"mouseover","css":"mouseover-hover","rwd":[1520,1220,980,720]},
+                       "hide":{"event":"mouseout"},
+                       "popup":{"id":"menu_step_number_{$randomString2}"},
+                       "cnt":{"id":"menu_step_number_{$randomString2}_cnt"}
+                     }'>
+                  <div class="col psh-title">
+                    {var $stepNumber = $stepNumber . $subStep->sortOrder . '.'}
+                    {$subStep->sortOrder}. {$subStep->name}
+                  </div>
+                  <div id="menu_step_number_{$randomString2}_cnt" class="mouseover-cnt mouseover-step-number">
+                    {$stepNumber} {$subStep->name}
+                  </div>
+                </div>
+
+                {* tlacitko na zobrazeni modalu s popisem specifikace *}
+                {if $subStep->stepSubtype !== 17}
+                  <div class="col">
+                    {if !empty($subStep->userDescription) || !empty($subStep->technicalDescription)}
+                      <div id="modal_process_step_detail_{$randomString2}_head" class="btn-flat b-small b-svg blue-text">
+                        {svg Sportisimo\Core\Icons\IconData::INFO}
+                      </div>
+                    {else}
+                      <div class="btn-flat b-small b-svg b-inactive">
+                        {svg Sportisimo\Core\Icons\IconData::INFO}
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+
+              </div>
+
+              {* vlozeni modalu s popisem specifikace *}
+              {include processStepDetailModal $subStep, $stepNumber, $randomString2}
+
+              {if $subStep->stepSubtype == 17}
+                <div id="menu_node_{$randomString3}"
+                     data-sm_menu='{
+                       "menu":"menu_tree_{$randomString3}",
+                       "item":"menu_node_{$randomString3}",
+                       "selected":true,
+                       "show":{"event":"click","type":"slide","delay":0,"scrollToHead":false},
+                       "hide":{"event":"click","type":"slide","delay":0,"modal":true},
+                       "head":{"id":"menu_node_{$randomString3}_head","css":"node-inactive","close":false},
+                       "popup":{"id":"menu_node_{$randomString3}_popup"},
+                       "cnt":{"id":"menu_node_{$randomString3}_cnt"},
+                       "close":{"id":"menu_node_{$randomString3}_close", "css":"node-close"}
+                     }'>
+                  <div id="menu_node_{$randomString3}_popup" class="menu-popup-open">
+                    <div id="menu_node_{$randomString3}_cnt">
+              {/if}
+
+              {* telo kroku *}
+              <div class="process-step-main" {*style="background-color: #{Nette\Utils\Random::generate(6, '0-9a-f')}"*}>
+
+                {* vlozeni bloku s obrazovkama *}
+                {include screenshots, $subStep->processStepScreenshotData}
+
+                {* tlacitko pro pokracovani jinym krokem nebo procesem *}
+                {if !empty($subStep->nextProcessStepId) && (empty($subStep->nextProcessId) || $currentProcessId === $subStep->nextProcessId)}
+                  <a href="#process_step_{$subStep->nextProcessStepId}" class="no-sclick btn-flat next-step-btn">
+                    {svg Sportisimo\Core\Icons\IconData::ARROW_FORWARD}
+                    POKRAČOVÁNÍ KROKEM - {$subStep->nextProcessStepName}
+                  </a>
+                {elseif !empty($subStep->nextProcessId) && $subStep->nextProcessLinkData != null}
+                  <a href="{slink $subStep->nextProcessLinkData}{if !empty($subStep->nextProcessStepId)}#process_step_{$subStep->nextProcessStepId}{/if}" target="_blank" class="no-sclick btn-flat next-step-btn">
+                    {svg Sportisimo\Core\Icons\IconData::ARROW_FORWARD}
+                    POKRAČOVÁNÍ PROCESEM - {$subStep->nextProcessName}
+                  </a>
+                {/if}
+
+{*                          {if !empty($subStep->children)}*}
+                {* vlozeni potomka kroku *}
+                {include printSpec, $subStep->children, $randomString2, $stepNumber, $subStep->stepSubtype, $subStep->stepSubtype === 8 || $subStep->stepSubtype === 17 || $subStep->stepSubtype === 20 || $subStep->stepSubtype === 23 ? false : true, $currentProcessId}
+{*                      {include printSpec, $subStep->children, $randomString2, $stepNumber, true}*}
+{*                          {/if}*}
+              </div>
+
+              {if $subStep->stepSubtype == 17}
+                    </div>
+                  </div>
+                </div>
+              {/if}
+
+            </div>
+
+          {* krok uz nema potomka *}
+          {else}
+
+            {var $randomString5 = Nette\Utils\Random::generate()}
+
+            <div {*class="process-step-body"*}>
+
+              {* hlavicka kroku *}
+              <div id="process_step_{$subStep->id}" class="row m0 process-step-header valign-wrapper">
+
+                {if $subStep->stepSubtype === 17}
+                  <div class="col psh-btn"></div>
+                {/if}
+
+                {* Zobrazeni ikony podtypu kroku *}
+                {include processStepSubtypeIcon $subStep->stepSubtype}
+
+                {* titulek kroku *}
+                <div id="menu_step_number_{$randomString5}"
+                     class="mouseover-popup"
+                     data-sm_menu='{
+                       "menu":"menu_step_number","item":"menu_step_number_{$randomString5}",
+                       "show":{"event":"mouseover","css":"mouseover-hover","rwd":[1520,1220,980,720]},
+                       "hide":{"event":"mouseout"},
+                       "popup":{"id":"menu_step_number_{$randomString5}"},
+                       "cnt":{"id":"menu_step_number_{$randomString5}_cnt"}
+                     }'>
+                  <div class="col psh-title">
+                    {var $stepNumber = $stepNumber . $subStep->sortOrder . '.'}
+                    {$subStep->sortOrder}. {$subStep->name}
+                  </div>
+                  <div id="menu_step_number_{$randomString5}_cnt" class="mouseover-cnt mouseover-step-number">
+                    {$stepNumber} {$subStep->name}
+                  </div>
+                </div>
+
+                {* tlacitko na zobrazeni modalu s popisem specifikace *}
+                {if $subStep->stepSubtype !== 17}
+                  <div class="col">
+                    {if !empty($subStep->userDescription) || !empty($subStep->technicalDescription)}
+                      <div id="modal_process_step_detail_{$randomString5}_head" class="btn-flat b-small b-svg blue-text">
+                        {svg Sportisimo\Core\Icons\IconData::INFO}
+                      </div>
+                    {else}
+                      <div class="btn-flat b-small b-svg b-inactive">
+                        {svg Sportisimo\Core\Icons\IconData::INFO}
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+
+              </div>
+
+              {* vlozeni modalu s popisem specifikace *}
+              {include processStepDetailModal $subStep, $stepNumber, $randomString5}
+
+              {* telo kroku *}
+              {if $subStep->processStepScreenshotData !== null}
+                <div class="process-step-main psm-last" {*style="background-color: #{Nette\Utils\Random::generate(6, '0-9a-f')}"*}>
+
+                  {* vlozeni bloku s obrazovkama *}
+                  {include screenshots, $subStep->processStepScreenshotData}
+
+                </div>
+              {/if}
+
+              {* tlacitko pro pokracovani jinym krokem nebo procesem *}
+              {if !empty($subStep->nextProcessStepId) && (empty($subStep->nextProcessId) || $currentProcessId === $subStep->nextProcessId)}
+                <a href="#process_step_{$subStep->nextProcessStepId}" class="no-sclick btn-flat next-step-btn">
+                  {svg Sportisimo\Core\Icons\IconData::ARROW_FORWARD}
+                  POKRAČOVÁNÍ KROKEM - {$subStep->nextProcessStepName}
+                </a>
+              {elseif !empty($subStep->nextProcessId) && $subStep->nextProcessLinkData != null}
+                <a href="{slink $subStep->nextProcessLinkData}{if !empty($subStep->nextProcessStepId)}#process_step_{$subStep->nextProcessStepId}{/if}" target="_blank" class="no-sclick btn-flat next-step-btn">
+                  {svg Sportisimo\Core\Icons\IconData::ARROW_FORWARD}
+                  POKRAČOVÁNÍ PROCESEM - {$subStep->nextProcessName}
+                </a>
+              {/if}
+
+            </div>
+
+          {/if}
+
+        {/foreach}
+      </div>
+
+      {if $showStepType}
+            </div>
+          </div>
+        </div>
+      {/if}
+
+    {/foreach}
+
+  {else}
+
+    <div class="row">
+      <div class="col">
+        <span class="italic grey-text">Žádný popis procesu</span>
+      </div>
+    </div>
+
+  {/if}
+{/define}
+
+{* blok s obrazovkama kroku *}
+{define screenshots $screenshotData}
+
+  {if $screenshotData !== null}
+
+    <div class="process-step-screenshots">
+      {foreach $screenshotData as $screenshot}
+        {var $randomString4 = Nette\Utils\Random::generate()}
+        <img id="modal_screenshot_{$randomString4}_head" src="{$basePath}/images/screenshots/{$screenshot->printScreenPath}" />
+        {* Modal - img *}
+        <div id="modal_screenshot_{$randomString4}"
+             data-sm_menu='{
+               "menu":"menu_screenshot",
+               "item":"modal_screenshot_{$randomString4}",
+               "show":{"type":"fade","event":"click"},
+               "hide":{"type":"fade","modal":true},
+               "head":{"id":"modal_screenshot_{$randomString4}_head","close":false},
+               "popup":{"id":"modal_screenshot_{$randomString4}_popup"},
+               "cnt":{"id":"modal_screenshot_{$randomString4}_cnt"},
+               "close":{"id":"modal_screenshot_{$randomString4}_close"}
+             }'>
+          <div id="modal_screenshot_{$randomString4}_popup" class="modal-popup-img">
+            <div id="modal_screenshot_{$randomString4}_close">
+              <div class="overlay-modal"></div>
+              <div id="modal_screenshot_{$randomString4}_cnt" class="center">
+                <img src="{$basePath}/images/screenshots/{$screenshot->printScreenPath}" title="" class="center" />
+              </div>
+            </div>
+          </div>
+        </div>
+        {* Modal - img - End *}
+      {/foreach}
+      <div class="clearfix"></div>
+    </div>
+
+  {/if}
+
+{/define}
+
+{* modal s popisem specifikace *}
+{define processStepDetailModal $step, $stepNumber, $randomString}
+  <div class="process-step-detail">
+    <div id="modal_process_step_detail_{$randomString}"
+         data-sm_menu='{
+           "menu":"modal_process",
+           "item":"modal_process_step_detail_{$randomString}",
+           "show":{"event":"click","type":"fade","delay":0,"scrollToHead":false},
+           "hide":{"event":"click","type":"fade","delay":0,"modal":true},
+           "head":{"id":"modal_process_step_detail_{$randomString}_head","close":false},
+           "popup":{"id":"modal_process_step_detail_{$randomString}_popup"},
+           "cnt":{"id":"modal_process_step_detail_{$randomString}_cnt"},
+           "close":{"id":"modal_process_step_detail_{$randomString}_close"}
+         }'>
+      <div id="modal_process_step_detail_{$randomString}_popup" class="modal-popup">
+        <div class="overlay-modal"></div>
+        <div id="modal_process_step_detail_{$randomString}_cnt" class="modal-cnt white">
+          <div class="modal-header">
+            {$stepNumber} {$step->name}
+          </div>
+
+          {* pro velké obrazovky *}
+          <div class="modal-main">
+
+            <div class="row m0">
+              <div class="col s6 no-padding">
+                <ul class="tabs t-static">
+                  <li class="tab"><div>Uživatelská specifikace</div></li>
+                </ul>
+              </div>
+              <div class="col s6 no-padding">
+                <ul class="tabs t-static">
+                  <li class="tab"><div>Technická specifikace</div></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row m0">
+              <div class="col s6 no-padding">
+                <div class="process-step-specification">
+                  {if !empty($step->userDescription)}
+                    <span class="markdown">{$step->userDescription|noescape}</span>
+                  {else}
+                    <span class="italic grey-text text08">Bez popisu specifikace</span>
+                  {/if}
+                </div>
+              </div>
+              <div class="col s6 no-padding">
+                <div class="process-step-specification">
+                  {if !empty($step->technicalDescription)}
+                    <span class="markdown">{$step->technicalDescription|noescape}</span>
+                  {else}
+                    <span class="italic grey-text text08">Bez popisu specifikace</span>
+                  {/if}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {* pro malé obrazovky *}
+          <div class="modal-main-tabs">
+
+            <ul class="tabs">
+              <li class="tab"><div id="menu_specification_1_{$randomString}_head">Uživatelská specifikace</div></li>
+              <li class="tab"><div id="menu_specification_2_{$randomString}_head">Technická specifikace</div></li>
+            </ul>
+
+            <div class="process-step-specification">
+              <div class="menu-specification"
+                   id="menu_specification_1_{$randomString}"
+                   data-sm_menu='{
+                     "menu":"menu_specification_{$randomString}",
+                     "item":"menu_specification_1_{$randomString}",
+                     "selected":true,
+                     "show":{"event":"click","type":"fade","delay":0,"scrollToHead":false},
+                     "hide":{"event":"click","type":"fade","delay":0,"modal":true},
+                     "head":{"id":"menu_specification_1_{$randomString}_head","css":"head-active","close":false},
+                     "popup":{"id":"menu_specification_1_{$randomString}_popup"},
+                     "cnt":{"id":"menu_specification_1_{$randomString}_cnt"}
+                   }'>
+                <div id="menu_specification_1_{$randomString}_popup" class="menu-popup-open">
+                  <div id="menu_specification_1_{$randomString}_cnt" class="menu-cnt">
+                    {if !empty($step->userDescription)}
+                      <span class="markdown">{$step->userDescription|noescape}</span>
+                    {else}
+                      <span class="italic grey-text text08">Bez popisu specifikace</span>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+
+              <div class="menu-specification"
+                   id="menu_specification_2_{$randomString}"
+                   data-sm_menu='{
+                     "menu":"menu_specification_{$randomString}",
+                     "item":"menu_specification_2_{$randomString}",
+                     "show":{"event":"click","type":"slide","delay":0,"scrollToHead":false},
+                     "hide":{"event":"click","type":"slide","delay":0,"modal":true},
+                     "head":{"id":"menu_specification_2_{$randomString}_head","css":"head-active","close":false},
+                     "popup":{"id":"menu_specification_2_{$randomString}_popup"},
+                     "cnt":{"id":"menu_specification_2_{$randomString}_cnt"}
+                   }'>
+                <div id="menu_specification_2_{$randomString}_popup" class="menu-popup">
+                  <div id="menu_specification_2_{$randomString}_cnt" class="menu-cnt">
+                    {if !empty($step->technicalDescription)}
+                      <span class="markdown">{$step->technicalDescription|noescape}</span>
+                    {else}
+                      <span class="italic grey-text text08">Bez popisu specifikace</span>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer right-align">
+            <div id="modal_process_step_detail_{$randomString}_close" class="btn-flat blue-text">zavřít</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{/define}
+
+{define processStepSubtypeIcon $stepSubtype}
+  {if $stepSubtype === 7}{*screen*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::SHOW}
+    </div>
+  {elseif $stepSubtype === 8}{*if*}
+    <div class="process-step-type-icon">
+{*      {svg Sportisimo\Core\Icons\IconData::EXPOSURE}*}
+{*      {svg Sportisimo\Core\Icons\IconData::HELP_NETWORK}*}
+{*      {svg Sportisimo\Core\Icons\IconData::SWAP_HORIZ}*}
+      {svg Sportisimo\Core\Icons\IconData::TRAFFIC}
+    </div>
+  {elseif $stepSubtype === 12}{*scan*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::BARCODE_READER}
+    </div>
+  {elseif $stepSubtype === 13}{*click*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::TOUCH}
+    </div>
+  {elseif $stepSubtype === 17}{*case*}
+{*    <div class="process-step-type-icon">*}
+{*      {svg Sportisimo\Core\Icons\IconData::REMOVE}*}
+{*    </div>*}
+  {elseif $stepSubtype === 19}{*input*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::KEYBOARD}
+    </div>
+  {elseif $stepSubtype === 20}{*switch_status*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::SPLIT_DOWN}
+    </div>
+  {elseif $stepSubtype === 21}{*printer*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::PRINTER}
+    </div>
+  {elseif $stepSubtype === 23}{*switch_user*}
+    <div class="process-step-type-icon">
+      {svg Sportisimo\Core\Icons\IconData::SPLIT_DOWN_PERSON}
+    </div>
+  {/if}
+{/define}

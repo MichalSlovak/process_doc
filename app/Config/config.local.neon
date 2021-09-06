@@ -1,0 +1,12 @@
+parameters:
+
+
+  database:
+      default:
+        dsn: 'mysql:host=sp-ecomm-mysql-03.stable.cz;dbname=sportisimo_processdoc'
+        host: sp-ecomm-mysql-03.stable.cz
+        dbname: sportisimo_processdoc
+        user: sportisimo
+        password: wmDERFduQZHdPGSu
+
+services:

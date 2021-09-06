@@ -1,0 +1,21 @@
+{block backLink}
+    {ifset $data->backlink}
+        {slink $data->backLink}
+    {else }
+        javascript:history.back()
+    {/ifset}
+{/block}
+
+{block content}
+
+<h2>Zvolte aplikaci</h2>
+
+<div class="row">
+  {foreach $data->applicationsData as $applicationData}
+    <div class="col l3 m6 s12 margin-bottom-1">
+      <a href="{slink $applicationData->subProcessTreeLinkData}" class="btn-card">{$applicationData->name}</a>
+    </div>
+  {/foreach}
+</div>
+
+{/block}

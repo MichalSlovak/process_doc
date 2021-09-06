@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>{ifset title}{include title|stripHtml} | {/ifset}Nástroj na evidenci specifikací</title>
+
+  <link rel="apple-touch-icon" href="{$basePath}/images/icons/favicon-apple.png" sizes="180x180">
+  <link rel="icon" type="image/png" href="{$basePath}/images/icons/favicon-big.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="{$basePath}/images/icons/favicon.png" sizes="16x16">
+  <link rel="icon" type="image/svg+xml" href="{$basePath}/images/icons/favicon.svg">
+  <link rel="mask-icon" href="{$basePath}/images/icons/favicon-mask.svg" color="#EE3E33">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700,latin-ext">
+
+  <link rel="stylesheet" href="{$basePath}/css/materialize.css">
+  {* todo cilso verze css brat z configu *}
+  <link rel="stylesheet" href="{$basePath}/css/layout.css?v=9">
+
+  <script>
+    var q = [], $ = function (f) {
+      q.push(f);
+    };
+  </script>
+</head>
+
+<body data-sm_click='{"selector":["a",".submit-button"],
+                      "event":"click",
+                      "excludeSel":["#tracy-debug-bar a", ".no-sclick"],
+                      "initOffSel":"#overlay-start",
+                      "initOffCss":"overlay-show",
+                      "css":"loader no-barcode-reader",
+                      "loading":{"src":"/images/icons/loading.png","css":"loading","w":32,"h":32,"f":12,"s":100},
+                      "overlay":{"show":{"type":"fade"},"hide":{"type":"fade"},"css":"overlay"}
+                      }' >
+
+  <div id="overlay-start" class="overlay-show"><div id="loader-start" class="loader"><img src="{$basePath}/images/icons/loading.gif" alt="loading" /></div></div>
+
+  <header>
+    {ifset breadcrumbs}
+      <div class="breadcrumbs">
+        {ifset backLink}
+          <a href="{include backLink}" title="Zpět" class="backlink">
+            {svg Sportisimo\Core\Icons\IconData::ARROW_BACK}
+          </a>
+        {/ifset}
+        <ul>
+          {include breadcrumbs}
+        </ul>
+      </div>
+    {else}
+      <div class="header">
+        <div class="header-logo">
+          <span class="white-text">Process doc</span>
+        </div>
+      </div>
+    {/ifset}
+  </header>
+
+  {snippet flashes}
+    <div n:if="!empty($flashes)" class="flash-messages">
+      {foreach $flashes as $flash}
+        <div id="menu_flash_{$iterator->counter}" n:class="$flash->type, 'flash-message z-depth-1'" data-sm_menu='{"menu":"menu_flash_messages_{$iterator->counter}","item":"menu_flash_{$iterator->counter}",
+                                                                                                                    "show":{"type":"slide","time":0,"onshow": true},
+                                                                                                                    "hide":{"type":"slide","time":0,"auto":10000,"amc":true,"modal":true},
+                                                                                                                    "popup":{"id":"menu_flash_{$iterator->counter}"},
+                                                                                                                    "close":{"id":"menu_flash_{$iterator->counter}_close"}}'>
+          <div class="fm-main">
+            <div class="fm-icon">
+              {if $flash->type === 'error'}
+                {svg Sportisimo\Core\Icons\IconData::ERROR}
+              {elseif $flash->type === 'warning'}
+                {svg Sportisimo\Core\Icons\IconData::WARNING}
+              {elseif $flash->type === 'success'}
+                {svg Sportisimo\Core\Icons\IconData::CHECK_CIRCLE}
+              {elseif $flash->type === 'info'}
+                {svg Sportisimo\Core\Icons\IconData::INFO}
+              {/if}
+            </div>
+            <div class="fm-message">
+              {$flash->message}
+            </div>
+          </div>
+          <div class="fm-btn">
+            <div id="menu_flash_{$iterator->counter}_close" class="btn-flat valign-wrapper center red-text">
+              {svg Sportisimo\Core\Icons\IconData::CLOSE}
+            </div>
+          </div>
+        </div>
+      {/foreach}
+    </div>
+  {/snippet}
+
+  <main>
+    {include content}
+  </main>
+
+  <script type="text/javascript" src="{$basePath}/js/dist/sportisimo.js?v=3"></script>
+
+  <script>
+    $(function () {
+      sm.menu.init();
+      sm.valueplusminus.init();
+      sm.countdown.init();
+      sm.valuechange.init();
+      sm.click.init();
+      $(".flash-message").trigger("sm_show");
+      $(".modal-onshow").trigger("sm_show");
+      $("#modal_processing_order").trigger("sm_show");
+      $('select').material_select();
+
+      $.each(q, function (index, f) {
+        $(f);
+      });
+    });
+  </script>
+
+</body>
+</html>

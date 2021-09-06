@@ -1,0 +1,63 @@
+{block backLink}
+  {ifset $data->backlink}
+    {slink $data->backlink}
+  {else}
+    javascript:history.back()
+  {/ifset}
+{/block}
+
+{block breadcrumbs}
+  {if $data->breadcrumbProcessesData !== null}
+    <li><a href="{slink $data->applicationData->subProcessTreeLinkData}">{$data->applicationData->name}</a></li>
+    {foreach $data->breadcrumbProcessesData as $breadcrumbItem}
+      {if $breadcrumbItem->subProcessTreeLinkData !== null}
+        <li><a href="{slink $breadcrumbItem->subProcessTreeLinkData}">{$breadcrumbItem->code}. {$breadcrumbItem->name}</a></li>
+      {else}
+        <li>{$breadcrumbItem->code}. {$breadcrumbItem->name}</li>
+      {/if}
+    {/foreach}
+  {else}
+    <li>{$data->applicationData->name}</li>
+  {/if}
+{/block}
+
+{block content}
+
+  <div class="tree-table margin-top-05">
+    {foreach $data->processesData as $processes}
+      {include printTableData $processes}
+    {/foreach}
+  </div>
+
+{/block}
+
+{define printTableData $processes}
+  <div class="row border-bottom">
+    <div class="col s2 m1 center">
+      {if $processes->subProcessTreeLinkData !== null}
+         <a href="{slink $processes->subProcessTreeLinkData}" class="btn-flat b-smaller b-auto b-svg blue-text waves-effect">
+           {svg Sportisimo\Core\Icons\IconData::ADD}
+         </a>
+      {/if}
+    </div>
+    <div class="col s2 m1 center"">
+      {if $processes->processStatusCode !== null}
+        <div class="{$processes->processStatusCode} process-status-mark"></div>
+      {/if}
+    </div>
+    <div class="col s2 m2">
+      {$processes->code}
+    </div>
+    <div class="col s4 m6">
+      {$processes->name}
+    </div>
+    <div class="col s2 m2">
+      <a href="{slink $processes->processDetailLinkData}" class="btn-flat b-smaller b-auto blue-text waves-effect">Detail</a>
+    </div>
+  </div>
+  {if !empty($processes->childProcesses)}
+    {foreach $processes->childProcesses as $y}
+      {include printTableData $y}
+    {/foreach}
+  {/if}
+{/define}

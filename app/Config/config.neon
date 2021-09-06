@@ -1,0 +1,131 @@
+parameters:
+  appSettings:
+    name: 'Stock Admin'
+    sessionExpiration: '+1 hour'
+    jsVersion: 53
+    cssVersion: 53
+    defaultLanguageIsoCode2: 'cs'
+    approvement:
+      systemOperationApprovementRequestExpiration: '+10 minutes'
+      systemOperationApprovementExpiration: '+30 seconds'
+    log:
+      systemSectionAccess: on
+      operations: on
+      json: off # Logovani pripojeni k tiskarnam
+      print: off # Logovani pripojeni k tiskarnam
+    printEnabled: on
+
+  transferSettings:
+    personalCollectionNotificationSoundCount: 3
+    openedTransferAutomatStockPackagesCount: 3
+    ecommerceArticlesCountToPicking: 10
+    transferRequestArticlesCountToPicking: 10
+    transferRequestPositionsCountToPicking: 2
+    transferRequestValidDateMinusDays: 0
+    transferRequestValidDatePlusDays: 7
+
+  articleRepriceSettings:
+    storeArticlesToReprice: 3 # pocet artiklu do davky k preceneni na prodejni plose
+    stockPositionsToReprice: 3 # pocet pozic do davky preceneni na prirucnim skladu
+
+  personalCollectionSettings:
+    articleCountToPicking: 10
+
+  dirs:
+    www: %wwwDir%
+    app: %appDir%
+    log: %dirs.app%/../log
+  paths:
+    media: 'https://www.sportisimo.com/pub/'
+    api: 'https://api.sportisimo.com/'
+    temp: %appDir%/../temp
+  fonts:
+    source: 'google'
+    cookieName: 'sm_wf'
+    families:
+      - 'Roboto:400,700,latin-ext'
+
+extensions:
+  translation: Kdyby\Translation\DI\TranslationExtension
+  flash: Sportisimo\Libs\FlashMessages\Config\FlashMessageExtension
+
+  database: Sportisimo\Core\Database\Config\DatabaseExtension(%debugMode%)
+  sportisimoCache: Sportisimo\Core\Cache\Core\Config\CacheExtension(%debugMode%)
+  core: Sportisimo\Core\Nette\Config\CoreNetteExtension
+  smSecurity: Sportisimo\Core\Security\Config\SecurityExtension(%debugMode%)
+
+  - Sportisimo\Ecommerce\Model\StockAdminCore\Entities\Config\StockAdminCoreExtension
+
+database:
+  default:
+    dsn: 'mysql:host=%database.default.host%;dbname=%database.default.dbname%;charset=utf8'
+    user: %database.default.user%
+    password: %database.default.password%
+    options:
+      sportisimo:
+        ping: off
+        url: %database.default.host%
+      lazy: yes
+
+translation:
+  resolvers:
+    session: on
+    request: off
+    header: off
+  default: %appSettings.defaultLanguageIsoCode2%
+  fallback: [%appSettings.defaultLanguageIsoCode2%]
+  whitelist: [cs, en, de, pl, ro, sk, hu, bg, ru]
+  dirs:
+      - %appDir%/Lang/cs
+
+application:
+  errorPresenter: Error
+  scanDirs: no
+  mapping:
+    *: Sportisimo\ProcessDoc\*Module\Presenters\*Presenter
+
+session:
+  expiration: %appSettings.sessionExpiration%
+  autoStart: false
+
+latte:
+  macros:
+    - Sportisimo\Core\Nette\Templates\MacroSet
+
+services:
+  - Sportisimo\ProcessDoc\Router\RouterFactory
+  router: @Sportisimo\ProcessDoc\Router\RouterFactory::createRouter
+
+  - Sportisimo\Core\Cache\Core\NoCache
+
+# Services
+  - Sportisimo\ProcessDoc\Model\Services\ProcessDetailService
+  - Sportisimo\ProcessDoc\Model\Services\ProcessTreeService
+  - Sportisimo\ProcessDoc\Model\Services\ApplicationListService
+  - Sportisimo\Core\Log\FileLogger
+
+# Providers
+  pathProvider: Sportisimo\ProcessDoc\Config\Providers\PathProvider(%dirs%, %paths%)
+
+# Facades
+  - Sportisimo\ProcessDoc\Model\Facades\ProcessTreeFacade
+  - Sportisimo\ProcessDoc\Model\Facades\ProcessDetailFacade
+  - Sportisimo\ProcessDoc\Model\Facades\ApplicationListFacade
+# Lists
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ApplicationList
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ProcessStepList
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ProcessStepTypesList
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ProcessVersionsList
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ProcessStepScreenshotList
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ProcessDetailList
+  - Sportisimo\ProcessDoc\Model\Entities\Lists\ProcessList
+
+
+  - class: Sportisimo\Core\Nette\Lang\NeonFileLoader
+    tags: [translation.loader: neon]
+
+decorator:
+  Sportisimo\Core\Nette\Control\AControl:
+    setup:
+      - setPathService(@pathProvider)
+      - setUserService
